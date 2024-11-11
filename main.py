@@ -6,6 +6,8 @@ import requests
 from functions.online_ops import find_my_ip, get_latest_news, get_random_advice, get_random_joke, get_weather_report, play_on_youtube, search_on_google, search_on_wikipedia, send_email, cardapio_RU
 from functions.os_ops import open_calculator, open_camera, open_cmd, open_notepad
 from decouple import config
+import serial
+from deep_translator import GoogleTranslator
 
 USERNAME = config('USER')
 BOTNAME = config('BOTNAME')
@@ -25,6 +27,7 @@ listening_text = [
     "Eu!",
     ]
 
+arduino = serial.Serial('COM15', 9600)
 
 
 def speak(engine, text):
@@ -62,16 +65,20 @@ def take_user_input(engine):
         query = r.recognize_google(audio, language='pt-BR')
         if not 'sair' in query or 'pare' in query:
             speak(engine, choice(opening_text))
-        # else:
-            # hour = datetime.now().hour
-            # if hour >= 21 and hour < 6:
-            #     speak(engine, "Boa noite, cuide-se!")
-            # else:
-            #     speak(engine, 'Tenha um bom dia!')
-            # exit()
+            set_oracle(arduino,2)
+        else:
+            hour = datetime.now().hour
+            if hour >= 21 and hour < 6:
+                speak(engine, "Boa noite, cuide-se!")
+            else:
+                speak(engine, 'Tenha um bom dia!')
+            exit()
     except Exception:
         query = 'None' 
     return query
+
+def set_oracle(arduino,state):
+    arduino.write(str(state).encode() + b'\n')
 
 def listen(engine):
     """Takes user input, recognizes it using Speech Recognition module and converts it into text"""
@@ -102,7 +109,7 @@ def listen(engine):
 
 def main():
 
-    esp_ip = "192.168.1.103"
+    esp_ip = "192.168.1.104"
     
     volume = 1.5
 
@@ -117,7 +124,7 @@ def main():
     # Set Voice (Female)
     # The getProperty method returns a list of voices available in the system.
     voices = engine.getProperty('voices')
-    '''engine.setProperty('voice', voices[1].id)'''
+    # engine.setProperty('voice', voices[1].id)
     for voice in voices:
         if "brazil" in voice.name.lower():
             engine.setProperty('voice', voice.id)
@@ -127,12 +134,15 @@ def main():
 
     while True:
         query = listen(engine).lower()
+        
+        set_oracle(arduino,0)
 
         if 'faraday' in query or 'faradai' in query or 'faradei' in query:
             speak(engine, choice(listening_text))
 
             while True:
                 
+                set_oracle(arduino,1)
                 query = take_user_input(engine).lower()       
 
                 if 'abrir bloco de notas' in query:
@@ -158,13 +168,13 @@ def main():
                           f'RU, {cardapio}')
                     break
 
-                elif 'acender' in query:
+                elif 'abrir porta' in query or 'porta' in query:
                     url_on = f"http://{esp_ip}/H"
                     response_on = requests.get(url_on)
                     if response_on.status_code == 200:
-                        print("LED aceso!")
+                        print("Abriu!")
                     else:
-                        print("Falha ao acender o LED.")
+                        print("Falha ao abrir a porta.")
                     break
 
                 elif 'apagar' in query:
@@ -229,14 +239,15 @@ def main():
                 #             "Algo deu errado enquanto enviava o email,por favor, cheque o log de erro.")
                 #     break
 
-                elif 'piadoca' in query:
+                elif 'conte uma piada' in query:
                     speak(engine, f"Espero que goste dessa.")
                     joke = get_random_joke()
                     speak(engine, joke)
                     speak(engine, "Estou printando na tela.")
+                    print(joke)
                     break
 
-                elif "conselho" in query:
+                elif "me de um conselho" in query:
                     speak(engine, f"Aqui vai um conselho para você.")
                     advice = get_random_advice()
                     speak(engine, advice)
@@ -282,12 +293,14 @@ def main():
                                 speak("Desculpe, não consegui entender os números. Certifique-se de que você forneceu números válidos.")
                         
                         else:
+                            set_oracle(arduino,3)
                             speak("Desculpe, não consegui entender os números. Certifique-se de que você forneceu números válidos.")
                     break
 
 
                 
                 elif 'sair' in query:
+                    arduino.close()
                     exit()
 
                 elif query != None:
@@ -296,5 +309,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-# variação de volume 
