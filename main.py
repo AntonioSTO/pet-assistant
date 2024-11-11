@@ -7,7 +7,10 @@ from functions.online_ops import find_my_ip, get_latest_news, get_random_advice,
 from functions.os_ops import open_calculator, open_camera, open_cmd, open_notepad
 from decouple import config
 import serial
+<<<<<<< HEAD
 from deep_translator import GoogleTranslator
+=======
+>>>>>>> f0e35e26660e797fedad10c8ba4d84400bf294eb
 
 USERNAME = config('USER')
 BOTNAME = config('BOTNAME')
@@ -27,7 +30,11 @@ listening_text = [
     "Eu!",
     ]
 
+<<<<<<< HEAD
 arduino = serial.Serial('COM15', 9600)
+=======
+oracle = serial.Serial('COMX', 9600)
+>>>>>>> f0e35e26660e797fedad10c8ba4d84400bf294eb
 
 
 def speak(engine, text):
@@ -65,6 +72,7 @@ def take_user_input(engine):
         query = r.recognize_google(audio, language='pt-BR')
         if not 'sair' in query or 'pare' in query:
             speak(engine, choice(opening_text))
+<<<<<<< HEAD
             set_oracle(arduino,2)
         else:
             hour = datetime.now().hour
@@ -73,12 +81,27 @@ def take_user_input(engine):
             else:
                 speak(engine, 'Tenha um bom dia!')
             exit()
+=======
+            set_oracle(oracle,2)
+        # else:
+            # hour = datetime.now().hour
+            # if hour >= 21 and hour < 6:
+            #     speak(engine, "Boa noite, cuide-se!")
+            # else:
+            #     speak(engine, 'Tenha um bom dia!')
+            # exit()
+>>>>>>> f0e35e26660e797fedad10c8ba4d84400bf294eb
     except Exception:
         query = 'None' 
     return query
 
+<<<<<<< HEAD
 def set_oracle(arduino,state):
     arduino.write(str(state).encode() + b'\n')
+=======
+def set_oracle(oracle,state):
+    oracle.write(str(state).encode() + b'\n')
+>>>>>>> f0e35e26660e797fedad10c8ba4d84400bf294eb
 
 def listen(engine):
     """Takes user input, recognizes it using Speech Recognition module and converts it into text"""
@@ -135,14 +158,22 @@ def main():
     while True:
         query = listen(engine).lower()
         
+<<<<<<< HEAD
         set_oracle(arduino,0)
+=======
+        set_oracle(oracle,0)
+>>>>>>> f0e35e26660e797fedad10c8ba4d84400bf294eb
 
         if 'faraday' in query or 'faradai' in query or 'faradei' in query:
             speak(engine, choice(listening_text))
 
             while True:
                 
+<<<<<<< HEAD
                 set_oracle(arduino,1)
+=======
+                set_oracle(oracle,1)
+>>>>>>> f0e35e26660e797fedad10c8ba4d84400bf294eb
                 query = take_user_input(engine).lower()       
 
                 if 'abrir bloco de notas' in query:
@@ -293,7 +324,11 @@ def main():
                                 speak("Desculpe, não consegui entender os números. Certifique-se de que você forneceu números válidos.")
                         
                         else:
+<<<<<<< HEAD
                             set_oracle(arduino,3)
+=======
+                            set_oracle(oracle,3)
+>>>>>>> f0e35e26660e797fedad10c8ba4d84400bf294eb
                             speak("Desculpe, não consegui entender os números. Certifique-se de que você forneceu números válidos.")
                     break
 
